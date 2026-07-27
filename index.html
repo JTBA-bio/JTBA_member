@@ -632,7 +632,7 @@
             };
 
             const idxName = findCol(['姓名', 'name', '會員姓名', '成員']);
-            // 新增「JTBA 社群中使用的暱稱」欄位匹配
+            // 「JTBA 社群中使用的暱稱」欄位匹配
             const idxNickname = findCol(['社群中使用的暱稱', 'jtba 社群中使用的暱稱', '社群暱稱', '暱稱', 'nickname', 'line暱稱', 'line 暱稱']);
             const idxStatus = findCol(['現況', '現狀', '身份', '狀態', 'status', '角色', '您的現況', '目前現況', '身份/現況']);
             const idxInterest = findCol(['興趣', '興趣類型', '嗜好', 'interest', '喜好', '您的興趣']);
@@ -1008,7 +1008,7 @@
                                     <h3 class="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors truncate">
                                         ${m.name}
                                     </h3>
-                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${m.nickname}</div>` : ''}
+                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>社群暱稱：${m.nickname}</div>` : ''}
                                     <p class="text-xs text-slate-500 font-medium truncate mt-0.5" title="${displayCompTitle}">
                                         ${displayCompTitle}
                                     </p>
