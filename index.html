@@ -186,8 +186,8 @@
 
         <!-- Member Cards / List Rendering Area -->
         <div id="members-container">
-            <!-- Grid View -->
-            <div id="grid-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+            <!-- Grid View: 調整為預設每列最多 3 個卡片 (lg:grid-cols-3) 以完整容納較長的社群暱稱 -->
+            <div id="grid-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
             <!-- List View -->
             <div id="list-view" class="hidden bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
@@ -195,7 +195,7 @@
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
                             <tr>
-                                <th class="py-3 px-4 whitespace-nowrap min-w-[160px]">成員姓名與暱稱</th>
+                                <th class="py-3 px-4 whitespace-nowrap min-w-[180px]">成員姓名與暱稱</th>
                                 <th class="py-3 px-4 whitespace-nowrap min-w-[130px]">現狀/身份</th>
                                 <th class="py-3 px-4">公司與職稱</th>
                                 <th class="py-3 px-4">興趣類型</th>
@@ -983,7 +983,7 @@
             }
         }
 
-        // 1. Grid View Renderer
+        // 1. Grid View Renderer (預設每列最多 3 個卡片，賦予寬敞顯示寬度)
         function renderGridView() {
             const container = document.getElementById('grid-view');
             container.innerHTML = filteredMembers.map(m => {
@@ -1004,11 +1004,11 @@
                                 <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 flex-shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
                                     <i class="fa-solid fa-user text-sm"></i>
                                 </div>
-                                <div class="pr-6 min-w-0">
+                                <div class="pr-6 min-w-0 flex-1">
                                     <h3 class="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors truncate">
                                         ${m.name}
                                     </h3>
-                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>社群暱稱：${m.nickname}</div>` : ''}
+                                    ${m.nickname ? `<div class="text-xs text-indigo-600 font-medium break-words mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>社群暱稱：${m.nickname}</div>` : ''}
                                     <p class="text-xs text-slate-500 font-medium truncate mt-0.5" title="${displayCompTitle}">
                                         ${displayCompTitle}
                                     </p>
@@ -1060,7 +1060,7 @@
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition-colors">
-                        <td class="py-3.5 px-4 whitespace-nowrap">
+                        <td class="py-3.5 px-4 whitespace-nowrap min-w-[180px]">
                             <div class="flex items-center space-x-2.5">
                                 <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 flex-shrink-0 text-xs">
                                     <i class="fa-solid fa-user"></i>
@@ -1072,7 +1072,7 @@
                                             <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                                         </button>
                                     </div>
-                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${m.nickname}</div>` : ''}
+                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium whitespace-nowrap mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>社群暱稱：${m.nickname}</div>` : ''}
                                     <div class="text-[11px] text-emerald-600 font-semibold mt-0.5 whitespace-nowrap"><i class="fa-solid fa-location-dot text-emerald-500 mr-1"></i>${m.location}</div>
                                 </div>
                             </div>
@@ -1139,7 +1139,7 @@
                                         </div>
                                         <div class="flex-grow min-w-0">
                                             <div class="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors truncate">${m.name}</div>
-                                            ${m.nickname ? `<div class="text-[11px] text-indigo-600 truncate"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${m.nickname}</div>` : ''}
+                                            ${m.nickname ? `<div class="text-[11px] text-indigo-600 truncate"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>社群暱稱：${m.nickname}</div>` : ''}
                                             <div class="text-xs text-slate-500 truncate">${displayCompTitle}</div>
                                             <div class="text-[10px] text-amber-700 font-medium truncate mt-0.5"><i class="fa-solid fa-heart mr-0.5"></i> ${m.interests.join(' / ')}</div>
                                         </div>
@@ -1518,7 +1518,7 @@
                                         ${member.status}
                                     </span>
                                 </h4>
-                                ${member.nickname ? `<div class="text-xs text-indigo-600 font-medium"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${member.nickname}</div>` : ''}
+                                ${member.nickname ? `<div class="text-xs text-indigo-600 font-medium"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>社群暱稱：${member.nickname}</div>` : ''}
                                 <p class="text-xs text-slate-500 mt-0.5">${displayCompTitle}</p>
                             </div>
                         </div>
