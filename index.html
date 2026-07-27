@@ -61,6 +61,7 @@
 
     <!-- Header / Navbar -->
     <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
             <!-- Header Title -->
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 via-red-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-rose-500/20">
@@ -110,7 +111,7 @@
                 <!-- Search Input -->
                 <div class="relative flex-grow max-w-2xl">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="搜尋姓名、公司與職稱、專業、興趣關鍵字..." class="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="搜尋姓名、社群暱稱、公司與職稱、專業、興趣關鍵字..." class="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
                     <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
@@ -150,7 +151,7 @@
                     </div>
                 </div>
 
-                <!-- Location Filter (新增在興趣類型之前) -->
+                <!-- Location Filter -->
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-xs font-semibold text-slate-500 w-20 flex items-center gap-1">
                         <i class="fa-solid fa-map-pin text-emerald-500"></i> 所在地區:
@@ -194,7 +195,7 @@
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
                             <tr>
-                                <th class="py-3 px-4 whitespace-nowrap min-w-[160px]">成員姓名</th>
+                                <th class="py-3 px-4 whitespace-nowrap min-w-[160px]">成員姓名與暱稱</th>
                                 <th class="py-3 px-4 whitespace-nowrap min-w-[130px]">現狀/身份</th>
                                 <th class="py-3 px-4">公司與職稱</th>
                                 <th class="py-3 px-4">興趣類型</th>
@@ -256,7 +257,11 @@
                                     <i class="fa-solid fa-star"></i>
                                 </button>
                             </div>
-                            <p id="modal-headline" class="text-slate-600 text-sm font-medium mt-0.5">--</p>
+                            <!-- Community Nickname -->
+                            <p id="modal-nickname" class="hidden text-xs text-indigo-600 font-medium mt-1 inline-flex items-center gap-1 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-100/80">
+                                <i class="fa-solid fa-user-tag text-indigo-400"></i> <span id="modal-nickname-text">--</span>
+                            </p>
+                            <p id="modal-headline" class="text-slate-600 text-sm font-medium mt-1">--</p>
                         </div>
                     </div>
 
@@ -356,7 +361,7 @@
 
             <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-xs text-amber-800 space-y-1">
                 <p class="font-bold"><i class="fa-solid fa-lightbulb text-amber-600"></i> 表格欄位對應提示：</p>
-                <p>自動支援：<code>姓名</code>、<code>現狀/身份</code> (如日本在學中/就職中/交換中)、<code>興趣類型</code>、<code>專業/技能</code>、<code>公司/單位/職稱</code>、<code>Email</code>、<code>LINE</code>、<code>電話</code>、<code>簡介</code>等。</p>
+                <p>自動支援：<code>姓名</code>、<code>JTBA 社群中使用的暱稱</code>、<code>現狀/身份</code>、<code>現在的所在地區</code>、<code>興趣類型</code>、<code>專業/技能</code>、<code>公司與職稱</code>、<code>Email</code>、<code>LINE</code>等。</p>
             </div>
 
             <div class="flex items-center justify-between pt-2">
@@ -418,7 +423,7 @@
                     <div id="stat-status-bars" class="space-y-2"></div>
                 </div>
 
-                <!-- 新增所在地區統計分布 -->
+                <!-- 所在地區統計分布 -->
                 <div>
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">所在地區分布 (Location Breakdown)</h4>
                     <div id="stat-location-bars" class="space-y-2"></div>
@@ -509,7 +514,6 @@
             if (!comp) return tit;
             if (!tit) return comp;
 
-            // If title and company are identical or contain each other
             if (comp.toLowerCase() === tit.toLowerCase()) {
                 return comp;
             }
@@ -628,17 +632,17 @@
             };
 
             const idxName = findCol(['姓名', 'name', '會員姓名', '成員']);
-            // 新增「您的現況」、「現況」等欄位關鍵字匹配
+            // 新增「JTBA 社群中使用的暱稱」欄位匹配
+            const idxNickname = findCol(['社群中使用的暱稱', 'jtba 社群中使用的暱稱', '社群暱稱', '暱稱', 'nickname', 'line暱稱', 'line 暱稱']);
             const idxStatus = findCol(['現況', '現狀', '身份', '狀態', 'status', '角色', '您的現況', '目前現況', '身份/現況']);
             const idxInterest = findCol(['興趣', '興趣類型', '嗜好', 'interest', '喜好', '您的興趣']);
             const idxSkill = findCol(['專業', '技能', '專長', 'skill', '領域', '專長與技能']);
             
-            // Handle cases where column name is "公司與職稱" or "公司/單位"
             const idxCompTitleCombined = findCol(['公司與職稱', '公司/職稱', '單位/職稱', '現職單位與職稱', '單位與職稱']);
             const idxCompany = idxCompTitleCombined !== -1 ? idxCompTitleCombined : findCol(['公司', '單位', '組織', 'company', '機構']);
             const idxTitle = idxCompTitleCombined !== -1 ? idxCompTitleCombined : findCol(['職稱', '頭銜', 'title', '職位']);
 
-            const idxLocation = findCol(['地區', '城市', '居住地', 'location', '地點', '日本地區', '居住地區']);
+            const idxLocation = findCol(['現在的所在地區', '現在所在地區', '所在地區', '地區', '城市', '居住地', 'location', '地點', '日本地區', '居住地區']);
             const idxBio = findCol(['簡介', '自我介紹', '經驗', 'bio', '介紹', '個人簡介']);
             const idxEmail = findCol(['email', '信箱', '郵件', '電子郵件']);
             const idxPhone = findCol(['電話', '手機', 'phone', '連絡電話', '聯絡電話']);
@@ -663,7 +667,6 @@
                     for (let i = 0; i < val.length; i++) {
                         const char = val[i];
                         
-                        // 追蹤半形與全形括號深度
                         if (char === '(' || char === '（') {
                             depth++;
                             current += char;
@@ -671,7 +674,6 @@
                             if (depth > 0) depth--;
                             current += char;
                         } else if (depth === 0 && (char === '\n' || char === '\r' || char === ',' || char === '，' || char === ';' || char === '；' || char === '/' || char === '、')) {
-                            // 僅在括號外遇到分隔符號時進行拆分
                             if (current.trim()) {
                                 results.push(current.trim());
                             }
@@ -689,7 +691,6 @@
                 let compVal = idxCompany !== -1 ? r[idxCompany] : '';
                 let titleVal = idxTitle !== -1 ? r[idxTitle] : '';
 
-                // If parsed from a combined "公司與職稱" column
                 if (idxCompTitleCombined !== -1) {
                     compVal = r[idxCompTitleCombined] || '';
                     titleVal = '';
@@ -698,6 +699,7 @@
                 const member = {
                     id: `m_${i}`,
                     name: name,
+                    nickname: (idxNickname !== -1 && r[idxNickname]) ? r[idxNickname] : '',
                     status: (idxStatus !== -1 && r[idxStatus]) ? r[idxStatus] : '未設定現況',
                     interests: idxInterest !== -1 ? parseTags(r[idxInterest]) : ['生活交流'],
                     skills: idxSkill !== -1 ? parseTags(r[idxSkill]) : [],
@@ -723,12 +725,13 @@
                 if (searchQuery) {
                     const q = searchQuery.toLowerCase();
                     const nameMatch = m.name.toLowerCase().includes(q);
+                    const nicknameMatch = m.nickname ? m.nickname.toLowerCase().includes(q) : false;
                     const companyMatch = m.company.toLowerCase().includes(q);
                     const titleMatch = m.title.toLowerCase().includes(q);
                     const bioMatch = m.bio.toLowerCase().includes(q);
                     const skillMatch = m.skills.some(s => s.toLowerCase().includes(q));
                     const interestMatch = m.interests.some(i => i.toLowerCase().includes(q));
-                    if (!nameMatch && !companyMatch && !titleMatch && !bioMatch && !skillMatch && !interestMatch) {
+                    if (!nameMatch && !nicknameMatch && !companyMatch && !titleMatch && !bioMatch && !skillMatch && !interestMatch) {
                         return false;
                     }
                 }
@@ -757,7 +760,6 @@
             document.getElementById('total-results').textContent = filteredMembers.length;
         }
 
-        // 修改為依成員人數由多到少（降序）排序
         function getUniqueStatuses() {
             const counts = {};
             allMembers.forEach(m => {
@@ -810,7 +812,7 @@
             });
             statusContainer.innerHTML = statusHtml;
 
-            // Location Pills (新增：位於興趣類型之前)
+            // Location Pills
             const locationContainer = document.getElementById('location-filter-pills');
             const locations = getUniqueLocations();
 
@@ -981,7 +983,7 @@
             }
         }
 
-        // 1. Grid View Renderer (Clean Card UI without photos)
+        // 1. Grid View Renderer
         function renderGridView() {
             const container = document.getElementById('grid-view');
             container.innerHTML = filteredMembers.map(m => {
@@ -1006,6 +1008,7 @@
                                     <h3 class="font-bold text-slate-900 text-base group-hover:text-blue-600 transition-colors truncate">
                                         ${m.name}
                                     </h3>
+                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${m.nickname}</div>` : ''}
                                     <p class="text-xs text-slate-500 font-medium truncate mt-0.5" title="${displayCompTitle}">
                                         ${displayCompTitle}
                                     </p>
@@ -1069,6 +1072,7 @@
                                             <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-star"></i>
                                         </button>
                                     </div>
+                                    ${m.nickname ? `<div class="text-[11px] text-indigo-600 font-medium truncate mt-0.5"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${m.nickname}</div>` : ''}
                                     <div class="text-[11px] text-emerald-600 font-semibold mt-0.5 whitespace-nowrap"><i class="fa-solid fa-location-dot text-emerald-500 mr-1"></i>${m.location}</div>
                                 </div>
                             </div>
@@ -1135,6 +1139,7 @@
                                         </div>
                                         <div class="flex-grow min-w-0">
                                             <div class="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors truncate">${m.name}</div>
+                                            ${m.nickname ? `<div class="text-[11px] text-indigo-600 truncate"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${m.nickname}</div>` : ''}
                                             <div class="text-xs text-slate-500 truncate">${displayCompTitle}</div>
                                             <div class="text-[10px] text-amber-700 font-medium truncate mt-0.5"><i class="fa-solid fa-heart mr-0.5"></i> ${m.interests.join(' / ')}</div>
                                         </div>
@@ -1198,6 +1203,17 @@
             window.location.hash = `member-${member.id}`;
 
             document.getElementById('modal-name').textContent = member.name;
+            
+            // Nickname display in modal
+            const nicknameContainer = document.getElementById('modal-nickname');
+            const nicknameText = document.getElementById('modal-nickname-text');
+            if (member.nickname) {
+                nicknameText.textContent = `社群暱稱：${member.nickname}`;
+                nicknameContainer.classList.remove('hidden');
+            } else {
+                nicknameContainer.classList.add('hidden');
+            }
+
             document.getElementById('modal-headline').textContent = getDisplayCompanyTitle(member.company, member.title);
             document.getElementById('modal-status-badge').textContent = member.status;
             document.getElementById('modal-location-text').textContent = member.location;
@@ -1465,7 +1481,6 @@
             const btn = document.getElementById('reshuffle-btn');
             btn.disabled = true;
 
-            // Shuffling Animation State
             container.innerHTML = `
                 <div class="text-center py-8 space-y-3">
                     <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-50 text-amber-500 border border-amber-200 flex items-center justify-center text-2xl animate-spin">
@@ -1476,7 +1491,6 @@
             `;
 
             setTimeout(() => {
-                // Pick a random member
                 const randomIndex = Math.floor(Math.random() * allMembers.length);
                 currentDrawMember = allMembers[randomIndex];
 
@@ -1504,6 +1518,7 @@
                                         ${member.status}
                                     </span>
                                 </h4>
+                                ${member.nickname ? `<div class="text-xs text-indigo-600 font-medium"><i class="fa-solid fa-user-tag text-indigo-400 mr-1"></i>${member.nickname}</div>` : ''}
                                 <p class="text-xs text-slate-500 mt-0.5">${displayCompTitle}</p>
                             </div>
                         </div>
