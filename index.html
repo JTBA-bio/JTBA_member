@@ -295,6 +295,10 @@
                         <div id="modal-interests-container" class="flex flex-wrap gap-1.5">
                             <!-- Populated dynamically -->
                         </div>
+                        <!-- Detailed Interests Explanation (興趣詳細) -->
+                        <p id="modal-interest-detail" class="hidden text-xs text-amber-900/90 bg-white/90 p-2.5 rounded-xl border border-amber-200/60 leading-relaxed mt-2.5 whitespace-pre-line">
+                            <!-- Populated dynamically -->
+                        </p>
                     </div>
 
                     <!-- Skills & Expertise Tags -->
@@ -361,7 +365,7 @@
 
             <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-xs text-amber-800 space-y-1">
                 <p class="font-bold"><i class="fa-solid fa-lightbulb text-amber-600"></i> 表格欄位對應提示：</p>
-                <p>自動支援：<code>姓名</code>、<code>JTBA 社群中使用的暱稱</code>、<code>現狀/身份</code>、<code>現在的所在地區</code>、<code>興趣類型</code>、<code>專業/技能</code>、<code>公司與職稱</code>、<code>Email</code>、<code>LINE</code>等。</p>
+                <p>自動支援：<code>姓名</code>、<code>JTBA 社群中使用的暱稱</code>、<code>現狀/身份</code>、<code>現在的所在地區</code>、<code>興趣類型</code>、<code>興趣類型 詳細</code>、<code>專業/技能</code>、<code>公司與職稱</code>、<code>Email</code>、<code>LINE</code>等。</p>
             </div>
 
             <div class="flex items-center justify-between pt-2">
@@ -635,7 +639,17 @@
             // 「JTBA 社群中使用的暱稱」欄位匹配
             const idxNickname = findCol(['社群中使用的暱稱', 'jtba 社群中使用的暱稱', '社群暱稱', '暱稱', 'nickname', 'line暱稱', 'line 暱稱']);
             const idxStatus = findCol(['現況', '現狀', '身份', '狀態', 'status', '角色', '您的現況', '目前現況', '身份/現況']);
-            const idxInterest = findCol(['興趣', '興趣類型', '嗜好', 'interest', '喜好', '您的興趣']);
+            
+            // 獨立區分「興趣類型」標籤與「興趣 (詳細)」補充說明
+            const idxInterestDetail = findCol(['興趣 (詳細)', '興趣（詳細）', '興趣(詳細)', '興趣類型 詳細', '興趣類型詳細', '詳細興趣', '興趣詳細', '興趣說明', '興趣描述', '興趣類型（詳細）']);
+            
+            // 尋找主興趣分類欄位（排除詳細說明欄）
+            let idxInterest = headers.findIndex(h => 
+                ['興趣類型', '興趣分類', '嗜好', 'interest', '喜好', '您的興趣'].some(k => h === k) ||
+                (h.includes('興趣') && !h.includes('詳細') && !h.includes('說明') && !h.includes('描述'))
+            );
+            if (idxInterest === -1) idxInterest = findCol(['興趣', '嗜好', 'interest']);
+
             const idxSkill = findCol(['專業', '技能', '專長', 'skill', '領域', '專長與技能']);
             
             const idxCompTitleCombined = findCol(['公司與職稱', '公司/職稱', '單位/職稱', '現職單位與職稱', '單位與職稱']);
@@ -702,6 +716,7 @@
                     nickname: (idxNickname !== -1 && r[idxNickname]) ? r[idxNickname] : '',
                     status: (idxStatus !== -1 && r[idxStatus]) ? r[idxStatus] : '未設定現況',
                     interests: idxInterest !== -1 ? parseTags(r[idxInterest]) : ['生活交流'],
+                    interestDetail: (idxInterestDetail !== -1 && r[idxInterestDetail]) ? r[idxInterestDetail].trim() : '',
                     skills: idxSkill !== -1 ? parseTags(r[idxSkill]) : [],
                     company: compVal,
                     title: titleVal,
@@ -731,7 +746,8 @@
                     const bioMatch = m.bio.toLowerCase().includes(q);
                     const skillMatch = m.skills.some(s => s.toLowerCase().includes(q));
                     const interestMatch = m.interests.some(i => i.toLowerCase().includes(q));
-                    if (!nameMatch && !nicknameMatch && !companyMatch && !titleMatch && !bioMatch && !skillMatch && !interestMatch) {
+                    const interestDetailMatch = m.interestDetail ? m.interestDetail.toLowerCase().includes(q) : false;
+                    if (!nameMatch && !nicknameMatch && !companyMatch && !titleMatch && !bioMatch && !skillMatch && !interestMatch && !interestDetailMatch) {
                         return false;
                     }
                 }
@@ -1033,6 +1049,7 @@
                                 <div class="flex flex-wrap gap-1">
                                     ${m.interests.map(i => `<span class="text-[11px] px-2 py-0.5 bg-amber-50 text-amber-800 rounded-md font-medium border border-amber-100">${i}</span>`).join('')}
                                 </div>
+                                ${m.interestDetail ? `<p class="text-[11px] text-amber-900/90 bg-amber-50/50 p-2 rounded-lg border border-amber-100/80 leading-relaxed line-clamp-2 mt-1.5"><i class="fa-solid fa-comment-dots text-amber-500 mr-1 text-[10px]"></i>${m.interestDetail}</p>` : ''}
                             </div>
                         </div>
 
@@ -1224,6 +1241,15 @@
             interestsContainer.innerHTML = member.interests.length > 0 
                 ? member.interests.map(i => `<span class="px-2.5 py-1 text-xs font-semibold bg-white text-amber-800 rounded-lg border border-amber-200/80 shadow-sm"><i class="fa-solid fa-tag text-amber-500 mr-1"></i>${i}</span>`).join('')
                 : '<span class="text-xs text-amber-700">暫無標籤</span>';
+
+            // Detailed Interests Text
+            const interestDetailEl = document.getElementById('modal-interest-detail');
+            if (member.interestDetail) {
+                interestDetailEl.textContent = member.interestDetail;
+                interestDetailEl.classList.remove('hidden');
+            } else {
+                interestDetailEl.classList.add('hidden');
+            }
 
             // Skills Container
             const skillsContainer = document.getElementById('modal-skills-container');
